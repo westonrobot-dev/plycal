@@ -345,13 +345,14 @@ bool Calibrator::Remove(uint32_t id)
 // remove last one
 bool Calibrator::Remove()
 {
-	if(polygons_.size() == 0)
-	{
-		return false;
-	}
+    if(polygons_.empty() || polygons_v_.empty())
+    {
+        return false;
+    }
 
-	polygons_.pop_back();
-	polygons_v_.pop_back();
+    polygons_.pop_back();
+    polygons_v_.pop_back();
+    return true;
 }
 
 bool Calibrator::Compute(Eigen::Matrix4d &tf)
@@ -704,6 +705,8 @@ bool Calibrator::Project(pcl::PointCloud<pcl::PointXYZRGB>& pc, cv::Mat& img,
 		auto& c = colors[idx];
 		cv::circle(img, cv::Point2d(u,v), 2, cv::Scalar(c[2], c[1], c[0]), -1);
 	}
+
+	return true;
 }
 
 

@@ -79,6 +79,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if(img_viewer_)
+    {
+        img_viewer_->close();
+        img_viewer_.release();
+    }
+    if(pc_viewer_)
+    {
+        pc_viewer_->close();
+        pc_viewer_.release();  // This should probably be `pc_viewer_.release();`
+    }
     delete ui;
 }
 
