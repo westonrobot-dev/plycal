@@ -1,5 +1,6 @@
 #include "pointcloudviewer.h"
 #include "ui_pointcloudviewer.h"
+#include <vtkGenericOpenGLRenderWindow.h>
 
 #include <QMenu>
 #include <QDebug>
@@ -16,13 +17,20 @@ PointcloudViewer::PointcloudViewer(QWidget *parent) :
 
     viewer_ = std::unique_ptr<pcl::visualization::PCLVisualizer>(
                   new pcl::visualization::PCLVisualizer("viewer", false));
-    ui->qvtkWidget->SetRenderWindow(viewer_->getRenderWindow());
-    viewer_->setupInteractor(ui->qvtkWidget->GetInteractor(), ui->qvtkWidget->GetRenderWindow());
+
+    vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
+    vtkSmartPointer<vtkRenderWindow> pclRenderWindow = viewer_->getRenderWindow();
+    renderWindow->SetSize(pclRenderWindow->GetSize());
+    renderWindow->AddRenderer(pclRenderWindow->GetRenderers()->GetFirstRenderer());
+    ui->qvtkWidget->setRenderWindow(renderWindow);
+
+    viewer_->setupInteractor(ui->qvtkWidget->interactor(), ui->qvtkWidget->renderWindow());
     ui->qvtkWidget->update();
 
     viewer_->resetCamera();
     showCoordinateSystem(Eigen::Affine3f::Identity(), 0, 2);
 }
+
 
 PointcloudViewer::~PointcloudViewer()
 {

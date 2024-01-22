@@ -25,6 +25,7 @@
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
+#include <ceres/manifold.h>
 
 using namespace lqh;
 /* Private define ------------------------------------------------------------*/
@@ -380,8 +381,10 @@ void  Calibrator::Optimize(Eigen::Matrix4d& tf)
 	ceres::Solver::Options options;
 	ceres::LossFunction* loss_function_edge (new ceres::SoftLOneLoss(1));
 	ceres::HuberLoss* loss_function_inlier (new ceres::HuberLoss(500));
-	ceres::LocalParameterization* quaternion_local_parameterization =
-		new ceres::EigenQuaternionParameterization;
+	// ceres::LocalParameterization* quaternion_local_parameterization =
+	// 	new ceres::EigenQuaternionParameterization;
+
+	ceres::Manifold* quaternion_local_parameterization = new ceres::EigenQuaternionManifold;
 
 	for(const auto& ply : polygons_)
 	{
@@ -405,7 +408,9 @@ void  Calibrator::Optimize(Eigen::Matrix4d& tf)
 		problem.AddResidualBlock(cost, NULL, q.coeffs().data(), p.data());
 //        problem.AddResidualBlock(cost, loss_function_inlier, q.coeffs().data(), p.data());
 	}
-	problem.SetParameterization(q.coeffs().data(), quaternion_local_parameterization);
+	// problem.SetParameterization(q.coeffs().data(), quaternion_local_parameterization);
+	problem.SetManifold(q.coeffs().data(), quaternion_local_parameterization);
+
 	//options.linear_solver_type = ceres::DENSE_SCHUR;
 	options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
 	options.max_num_iterations = 5000;
